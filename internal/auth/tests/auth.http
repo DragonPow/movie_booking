@@ -1,0 +1,51 @@
+@baseUrl = http://localhost:8080
+@authToken = {{login.response.body.token}}
+
+### Register a new user
+POST {{baseUrl}}/v1/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "Test@example123"
+}
+
+### Login with valid credentials
+# @name login
+POST {{baseUrl}}/v1/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "Test@example123"
+}
+
+### Test invalid login
+POST {{baseUrl}}/v1/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "wrong@example.com",
+    "password": "wrongpassword"
+}
+
+### Test with valid token
+GET {{baseUrl}}/v1/auth/validate HTTP/1.1
+Authorization: Bearer {{authToken}}
+
+### Test with invalid token format
+GET {{baseUrl}}/v1/auth/validate HTTP/1.1
+Authorization: Bearer invalid.token.format
+
+### Test with missing token
+GET {{baseUrl}}/v1/auth/validate HTTP/1.1
+
+### Test with modified/tampered token
+GET {{baseUrl}}/v1/auth/validate HTTP/1.1
+Authorization: Bearer {{authToken}}modified
+
+### Test with expired token
+# Note: This test will only work after the token has expired
+GET {{baseUrl}}/v1/auth/validate HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NDI3MjgwMDAsInVzZXJfaWQiOjEsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSJ9.7jKAHHzDxKA4tO-HKKZkRXAPDpA9tF2I3x_QN9W2RjY
