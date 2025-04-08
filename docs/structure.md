@@ -124,14 +124,14 @@ message LoginResponse {
 ```bash
 #!/bin/bash
 
-protoc -I api/ \
-       -I third_party/ \
-       --go_out=gen --go_opt=paths=source_relative \
-       --go-grpc_out=gen --go-grpc_opt=paths=source_relative \
-       --grpc-gateway_out=gen --grpc-gateway_opt=paths=source_relative \
-       api/auth/auth.proto \
-       api/movie/movie.proto \
-       api/booking/booking.proto
+protoc -I api/protobuf \
+       -I ./third_party \
+       --go_out=gen/proto --go_opt=paths=source_relative \
+       --go-grpc_out=gen/proto --go-grpc_opt=paths=source_relative \
+       --grpc-gateway_out=gen/proto --grpc-gateway_opt=paths=source_relative \
+       api/protobuf/auth/v1/auth.proto \
+       api/protobuf/movie/v1/movie.proto \
+       api/protobuf/booking/v1/booking.proto
 ```
 
 Run it using:
