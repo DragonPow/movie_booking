@@ -52,8 +52,8 @@ debug
 __debug_bin
 
 # Proto generated files
-*.pb.go
-*.pb.gw.go
+# *.pb.go
+# *.pb.gw.go
 
 # Air live reload
 tmp/

@@ -1,0 +1,259 @@
+syntax = "proto3";
+
+package movie.v1;
+
+option go_package = "github.com/DragonPow/movie_booking/gen/proto/movie/v1;moviepb";
+
+import "google/api/annotations.proto";
+
+// MovieService provides APIs for movie management and retrieval
+service MovieService {
+  // ListMovies returns a paginated list of movies with optional filtering
+  rpc ListMovies(ListMoviesRequest) returns (ListMoviesResponse) {
+    option (google.api.http) = {
+      get: "/v1/movies"
+    };
+  }
+  
+  // GetMovie retrieves detailed information about a specific movie
+  rpc GetMovie(GetMovieRequest) returns (GetMovieResponse) {
+    option (google.api.http) = {
+      get: "/v1/movies/{movie_id}"
+    };
+  }
+  
+  // CreateMovie creates a new movie entry
+  rpc CreateMovie(CreateMovieRequest) returns (CreateMovieResponse) {
+    option (google.api.http) = {
+      post: "/v1/movies"
+      body: "*"
+    };
+  }
+
+  // ListShows returns all shows for a movie
+  rpc ListShows(ListShowsRequest) returns (ListShowsResponse) {
+    option (google.api.http) = {
+      get: "/v1/movies/{movie_id}/shows"
+    };
+  }
+
+  // CreateShow creates a new show for a movie
+  rpc CreateShow(CreateShowRequest) returns (CreateShowResponse) {
+    option (google.api.http) = {
+      post: "/v1/movies/{movie_id}/shows"
+      body: "*"
+    };
+  }
+}
+
+// MovieStatus represents the current status of a movie
+enum MovieStatus {
+  // Default value, should not be used
+  MOVIE_STATUS_UNSPECIFIED = 0;
+  // Movie is currently showing in theaters
+  MOVIE_STATUS_NOW_SHOWING = 1;
+  // Movie will be released in the future
+  MOVIE_STATUS_UPCOMING = 2;
+}
+
+// Movie represents a movie entity with all its details
+message Movie {
+  // Unique identifier for the movie
+  string id = 1;
+  // Title of the movie
+  string title = 2;
+  // Detailed description/synopsis
+  string description = 3;
+  // Movie genre (e.g., Action, Comedy, Drama)
+  string genre = 4;
+  // Duration in minutes
+  int32 duration = 5;
+  // Release date in ISO 8601 format (YYYY-MM-DD)
+  string release_date = 6;
+  // List of all shows for this movie
+  repeated Show shows = 7;
+  // Language of the movie
+  string language = 8;
+  // Age rating (e.g., G, PG, PG-13, R)
+  string age_rating = 9;
+  // URL to movie poster image
+  string poster_url = 10;
+  // URL to movie trailer video
+  string trailer_url = 11;
+  // Current status of the movie
+  MovieStatus status = 12;
+}
+
+// Show represents a specific screening of a movie in a theater room
+message Show {
+  // Unique identifier for the show
+  string id = 1;
+  // Reference to the movie being shown
+  string movie_id = 2;
+  // Reference to the theater room
+  string room_id = 3;
+  // Show time in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ)
+  string start_time = 4;
+  // Show end time calculated based on movie duration
+  string end_time = 5;
+  // Base price for the show
+  double base_price = 6;
+  // Available seats in the room for this show
+  repeated Seat available_seats = 7;
+  // Current status of the show
+  ShowStatus status = 8;
+}
+
+// ShowStatus represents the current status of a show
+enum ShowStatus {
+  // Default value, should not be used
+  SHOW_STATUS_UNSPECIFIED = 0;
+  // Show is scheduled and seats can be booked
+  SHOW_STATUS_AVAILABLE = 1;
+  // Show is fully booked
+  SHOW_STATUS_FULL = 2;
+  // Show has started or ended
+  SHOW_STATUS_FINISHED = 3;
+  // Show was cancelled
+  SHOW_STATUS_CANCELLED = 4;
+}
+
+// Seat represents a seat in a theater room
+message Seat {
+  // Unique identifier for the seat
+  string id = 1;
+  // Row label (e.g., A, B, C)
+  string row = 2;
+  // Number in the row (e.g., 1, 2, 3)
+  int32 number = 3;
+  // Type of seat (e.g., Standard, VIP, Couple)
+  string type = 4;
+  // Current status of the seat
+  SeatStatus status = 5;
+}
+
+// SeatStatus represents the current status of a seat
+enum SeatStatus {
+  // Default value, should not be used
+  SEAT_STATUS_UNSPECIFIED = 0;
+  // Seat is available for booking
+  SEAT_STATUS_AVAILABLE = 1;
+  // Seat is temporarily held
+  SEAT_STATUS_HELD = 2;
+  // Seat has been booked
+  SEAT_STATUS_BOOKED = 3;
+  // Seat is not available (maintenance, blocked)
+  SEAT_STATUS_UNAVAILABLE = 4;
+}
+
+// DateRange represents a time period with start and end dates
+message DateRange {
+  // Start date in ISO 8601 format (YYYY-MM-DD)
+  string start_date = 1;
+  // End date in ISO 8601 format (YYYY-MM-DD)
+  string end_date = 2;
+}
+
+// Request message for ListMovies
+message ListMoviesRequest {
+  // Number of movies to return per page
+  int32 page_size = 1;
+  // Page number, starting from 1
+  int32 page_number = 2;
+  // Filter by genre
+  optional string genre = 3;
+  // Filter by location/theater
+  optional string location = 4;
+  // Filter by date range
+  optional DateRange date_range = 5;
+  // Filter by movie status
+  optional MovieStatus status = 6;
+}
+
+// Response message for ListMovies
+message ListMoviesResponse {
+  // List of movies matching the request
+  repeated Movie movies = 1;
+  // Total number of movies matching the filter criteria
+  int32 total_count = 2;
+}
+
+// Request message for GetMovie
+message GetMovieRequest {
+  // ID of the movie to retrieve
+  string movie_id = 1;
+}
+
+// Response message for GetMovie
+message GetMovieResponse {
+  // The requested movie
+  Movie movie = 1;
+}
+
+// Request message for CreateMovie
+message CreateMovieRequest {
+  // Title of the new movie
+  string title = 1;
+  // Movie description/synopsis
+  string description = 2;
+  // Movie genre
+  string genre = 3;
+  // Duration in minutes
+  int32 duration = 4;
+  // Release date in ISO 8601 format (YYYY-MM-DD)
+  string release_date = 5;
+  // Movie language
+  string language = 6;
+  // Age rating
+  string age_rating = 7;
+  // URL to movie poster
+  string poster_url = 8;
+  // URL to movie trailer
+  string trailer_url = 9;
+  // Current status of the movie
+  MovieStatus status = 10;
+}
+
+// Response message for CreateMovie
+message CreateMovieResponse {
+  // The created movie
+  Movie movie = 1;
+}
+
+// Request message for ListShows
+message ListShowsRequest {
+  // ID of the movie to list shows for
+  string movie_id = 1;
+  // Filter shows by date range
+  optional DateRange date_range = 2;
+  // Filter by theater/location
+  optional string location = 3;
+  // Filter by show status
+  optional ShowStatus status = 4;
+}
+
+// Response message for ListShows
+message ListShowsResponse {
+  // List of shows matching the request
+  repeated Show shows = 1;
+  // Total number of movies matching the filter criteria
+  int32 total_count = 2;
+}
+
+// Request message for CreateShow
+message CreateShowRequest {
+  // ID of the movie to create show for
+  string movie_id = 1;
+  // ID of the theater room
+  string room_id = 2;
+  // Show start time in ISO 8601 format
+  string start_time = 3;
+  // Base ticket price
+  double base_price = 4;
+}
+
+// Response message for CreateShow
+message CreateShowResponse {
+  // The created show
+  Show show = 1;
+}
